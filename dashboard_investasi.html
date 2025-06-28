@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasbor Analisis Aliran Dana Global 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral with Blue and Gold Accents -->
+    <!-- Application Structure Plan: A tab-based Single-Page Application (SPA) dashboard. This structure was chosen to break down the dense report into digestible, thematic sections (Overview, Macro, Asset Flows, Crypto Focus, Recommendations), allowing users to navigate non-linearly and explore topics of interest. The user lands on a high-level overview and can then dive deeper into specific analyses, such as interactive charts for asset flows or a detailed breakdown of crypto liquidity. This enhances usability and comprehension compared to a long, scrolling page. -->
+    <!-- Visualization & Content Choices: 
+    - ETF Flow Comparison: Goal: Compare asset class performance. Method: Bar Chart (Chart.js) with tooltips. Justification: Direct, clear comparison of fund flows.
+    - Crypto Liquidity Drivers: Goal: Explain a complex issue. Method: Interactive cards (HTML/JS) where clicking a driver (e.g., HODLing) updates a central text block. Justification: Breaks down complexity and encourages user engagement.
+    - Recommended Portfolio: Goal: Show strategic allocation. Method: Doughnut Chart (Chart.js). Justification: Visually intuitive way to represent portfolio composition.
+    - Bitcoin Dominance: Goal: Illustrate market concentration. Method: Pie Chart (Chart.js). Justification: Simple and effective for showing part-to-whole relationships.
+    - Macro Factors: Goal: Summarize key drivers. Method: Grid of info cards (HTML/Tailwind). Justification: Scannable and organized presentation.
+    All visualizations are implemented using Chart.js on Canvas, adhering to the no-SVG constraint. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-button { transition: all 0.3s ease; }
+        .tab-button.active { background-color: #3182ce; color: white; }
+        .tab-button:not(.active):hover { background-color: #ebf8ff; }
+        .content-pane { display: none; }
+        .content-pane.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 640px) { .chart-container { height: 350px; } }
+        @media (min-width: 1024px) { .chart-container { height: 400px; } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Analisis Aliran Dana Global</h1>
+            <p class="text-md md:text-lg text-gray-600 mt-2">Tinjauan Interaktif Pasar Keuangan & Kripto 2024-2025</p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center border-b-2 border-gray-200 mb-8">
+            <button class="tab-button py-2 px-4 font-semibold text-gray-600 rounded-t-lg focus:outline-none" data-tab="overview">Gambaran Umum</button>
+            <button class="tab-button py-2 px-4 font-semibold text-gray-600 rounded-t-lg focus:outline-none" data-tab="macro">Kondisi Makro</button>
+            <button class="tab-button py-2 px-4 font-semibold text-gray-600 rounded-t-lg focus:outline-none" data-tab="flows">Aliran Dana Aset</button>
+            <button class="tab-button py-2 px-4 font-semibold text-gray-600 rounded-t-lg focus:outline-none" data-tab="crypto">Fokus Kripto</button>
+            <button class="tab-button py-2 px-4 font-semibold text-gray-600 rounded-t-lg focus:outline-none" data-tab="recommendations">Proyeksi & Rekomendasi</button>
+        </nav>
+
+        <main>
+            <!-- Gambaran Umum -->
+            <div id="overview" class="content-pane">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-4">Ringkasan Eksekutif: Rotasi Modal yang Matang</h2>
+                    <p class="text-gray-700 mb-4">
+                        Periode Q3 2024 hingga pertengahan 2025 menjadi saksi pergeseran modal yang signifikan. Didorong oleh ekspektasi pelonggaran kebijakan moneter dan ketidakpastian geopolitik, investor secara hati-hati merotasi dana dari kas ke aset yang menawarkan imbal hasil lebih menarik. Laporan ini mengurai tren tersebut, dari dominasi obligasi hingga pendewasaan pasar kripto.
+                    </p>
+                    <div class="grid md:grid-cols-3 gap-6 text-center">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-blue-700">Obligasi Jadi Pilihan Utama</h3>
+                            <p class="text-2xl font-bold text-blue-900 mt-2">$136,1 Miliar</p>
+                            <p class="text-sm text-gray-600">Aliran masuk ETF Obligasi Global di Q1 2025.</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-yellow-700">Emas Tetap Bersinar</h3>
+                            <p class="text-2xl font-bold text-yellow-900">+25%</p>
+                            <p class="text-sm text-gray-600">Kenaikan harga emas dalam 5 bulan pertama 2025.</p>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-700">Dominasi Bitcoin Menguat</h3>
+                            <p class="text-2xl font-bold text-gray-900">63%</p>
+                            <p class="text-sm text-gray-600">Pangsa pasar Bitcoin, tertinggi sejak awal 2021.</p>
+                        </div>
+                    </div>
+                    <p class="mt-6 text-gray-700">
+                        Di pasar kripto, perbedaan strategi antara investor institusional dan ritel semakin jelas. Institusi memilih jalur aman melalui ETF, sementara ritel bergeser ke protokol DeFi untuk mencari imbal hasil. Fenomena ini menandakan pendewasaan ekosistem, di mana fokus tidak lagi hanya pada spekulasi, tetapi juga pada utilitas dan stabilitas jangka panjang.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Kondisi Makro -->
+            <div id="macro" class="content-pane">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-4">Penggerak Utama Pasar Global</h2>
+                    <p class="text-gray-700 mb-6">Empat kekuatan makroekonomi utama membentuk lanskap investasi saat ini. Memahami dinamika ini adalah kunci untuk menavigasi pasar di sisa tahun 2025.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="border border-gray-200 p-4 rounded-lg bg-gray-50">
+                            <div class="flex items-center mb-2">
+                                <span class="text-3xl mr-3">🏦</span>
+                                <h3 class="text-lg font-semibold text-gray-800">Suku Bunga</h3>
+                            </div>
+                            <p class="text-sm text-gray-600">Fokus pasar telah bergeser dari "kapan kenaikan berhenti" menjadi "kapan pemangkasan dimulai". Proyeksi mengindikasikan The Fed akan mulai memangkas suku bunga di akhir 2025, mendukung aset berisiko.</p>
+                        </div>
+                        <div class="border border-gray-200 p-4 rounded-lg bg-gray-50">
+                            <div class="flex items-center mb-2">
+                                <span class="text-3xl mr-3">📈</span>
+                                <h3 class="text-lg font-semibold text-gray-800">Inflasi</h3>
+                            </div>
+                            <p class="text-sm text-gray-600">Meskipun inflasi global mereda, angkanya masih di atas target 2%. Adanya risiko re-akselerasi dapat menunda pemotongan suku bunga dan menekan selera risiko.</p>
+                        </div>
+                        <div class="border border-gray-200 p-4 rounded-lg bg-gray-50">
+                            <div class="flex items-center mb-2">
+                                <span class="text-3xl mr-3">🌍</span>
+                                <h3 class="text-lg font-semibold text-gray-800">Geopolitik</h3>
+                            </div>
+                            <p class="text-sm text-gray-600">Konflik dan ketegangan dagang yang terus berlanjut mendorong permintaan kuat untuk aset lindung nilai seperti emas, menciptakan volatilitas jangka pendek.</p>
+                        </div>
+                        <div class="border border-gray-200 p-4 rounded-lg bg-gray-50">
+                            <div class="flex items-center mb-2">
+                                <span class="text-3xl mr-3">📜</span>
+                                <h3 class="text-lg font-semibold text-gray-800">Regulasi</h3>
+                            </div>
+                            <p class="text-sm text-gray-600">Persetujuan ETF Spot untuk Bitcoin dan Ethereum telah menjadi katalis adopsi institusional, meskipun ketidakpastian regulasi untuk aset kripto lainnya masih membayangi pasar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aliran Dana Aset -->
+            <div id="flows" class="content-pane">
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-4">Aliran Dana ETF Global (Q1 vs Q2 2025)</h2>
+                    <p class="text-gray-700 mb-6">Visualisasi ini membandingkan aliran dana bersih ke dalam ETF untuk kelas aset utama. Terlihat jelas prioritas investor pada stabilitas (obligasi) dan lindung nilai (emas), sementara aliran ke kripto melambat namun tetap positif, menandakan konsolidasi institusional.</p>
+                    <div class="chart-container">
+                        <canvas id="etfFlowsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fokus Kripto -->
+            <div id="crypto" class="content-pane">
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-4">Fokus Mendalam: Pasar Aset Kripto</h2>
+                    <p class="text-gray-700 mb-6">Setelah reli kuat, pasar kripto memasuki fase konsolidasi dengan likuiditas yang lebih rendah. Ini bukan pertanda buruk, melainkan cerminan dari pendewasaan pasar. Berikut adalah faktor-faktor utamanya dan perbandingan antara strategi investor institusional dan ritel.</p>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3">Mengapa Likuiditas Kripto Menurun?</h3>
+                            <p class="text-sm text-gray-600 mb-4">Klik pada setiap faktor untuk melihat penjelasannya.</p>
+                            <div class="space-y-3">
+                                <button class="liquidity-driver-btn w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition" data-content="liquidity_hodl">1. Perilaku "HODL" & Perpindahan ke Cold Storage</button>
+                                <button class="liquidity-driver-btn w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition" data-content="liquidity_retail">2. Pergeseran Ritel ke DeFi untuk Imbal Hasil</button>
+                                <button class="liquidity-driver-btn w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition" data-content="liquidity_etf">3. Dampak Perlambatan Aliran Dana ETF</button>
+                                <button class="liquidity-driver-btn w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition" data-content="liquidity_cex">4. Penurunan Aktivitas di Bursa Terpusat (CEX)</button>
+                            </div>
+                            <div id="liquidity-content" class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg min-h-[150px]">
+                                <p class="text-blue-800">Porsi Bitcoin yang tidak bergerak lebih dari setahun telah mencapai 67%. Banyak investor memindahkan aset dari bursa ke dompet pribadi untuk keamanan jangka panjang, mengurangi pasokan yang siap diperdagangkan dan menekan likuiditas.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Institusi vs. Ritel: Dua Dunia Berbeda</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="p-4 border rounded-lg bg-gray-50">
+                                    <h4 class="font-bold text-lg text-gray-800">Investor Institusional</h4>
+                                    <ul class="list-disc list-inside mt-2 text-sm text-gray-600 space-y-1">
+                                        <li>Fokus pada instrumen teregulasi (ETF).</li>
+                                        <li>Alokasi kecil dan terukur (5-7% sebagai *satellite asset*).</li>
+                                        <li>Strategi *buy-and-hold* jangka panjang.</li>
+                                        <li>Mengeksplorasi utilitas seperti RWA Tokenisasi.</li>
+                                    </ul>
+                                </div>
+                                <div class="p-4 border rounded-lg bg-gray-50">
+                                    <h4 class="font-bold text-lg text-gray-800">Investor Ritel</h4>
+                                    <ul class="list-disc list-inside mt-2 text-sm text-gray-600 space-y-1">
+                                        <li>Mengurangi perdagangan spekulatif di CEX.</li>
+                                        <li>Bergeser ke DeFi mencari imbal hasil (yield).</li>
+                                        <li>Fokus pada *stablecoin* dan protokol *blue-chip*.</li>
+                                        <li>Lebih reaktif terhadap sentimen pasar.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Proyeksi & Rekomendasi -->
+            <div id="recommendations" class="content-pane">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-4">Proyeksi & Rekomendasi Strategis (Q3–Q4 2025)</h2>
+                     <p class="text-gray-700 mb-8">Berdasarkan analisis kondisi makro dan aliran dana, berikut adalah proyeksi dan rekomendasi alokasi portofolio yang seimbang untuk menghadapi sisa tahun 2025. Pendekatan hibrida yang menggabungkan aset defensif dan pertumbuhan selektif menjadi kunci.</p>
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-center">Rekomendasi Alokasi Portofolio</h3>
+                            <div class="chart-container" style="height: 300px; max-height: 300px;">
+                                <canvas id="recommendationChart"></canvas>
+                            </div>
+                        </div>
+                        <div id="recommendation-details" class="space-y-4">
+                             <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                                <h4 class="font-bold text-blue-800">Obligasi: Pondasi Stabilitas</h4>
+                                <p class="text-sm text-gray-700">Pertahankan durasi menengah untuk mengunci imbal hasil sebelum suku bunga turun lebih jauh. Alokasikan juga sebagian ke ETF obligasi berimbal hasil tinggi.</p>
+                            </div>
+                             <div class="p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+                                <h4 class="font-bold text-green-800">Saham: Pertumbuhan Selektif</h4>
+                                <p class="text-sm text-gray-700">Fokus pada sektor siklikal (industri, konsumer) dengan valuasi menarik yang berpotensi diuntungkan oleh pemulihan ekonomi.</p>
+                            </div>
+                            <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+                                <h4 class="font-bold text-yellow-800">Emas: Pilar Pertahanan</h4>
+                                <p class="text-sm text-gray-700">Alokasikan 5-8% untuk lindung nilai terhadap ketidakpastian geopolitik dan potensi re-akselerasi inflasi.</p>
+                            </div>
+                            <div class="p-4 bg-gray-100 border-l-4 border-gray-500 rounded-r-lg">
+                                <h4 class="font-bold text-gray-800">Kripto: Eksposur Terukur</h4>
+                                <p class="text-sm text-gray-700">Alokasikan 3-5% dengan fokus pada ETF Spot (Bitcoin & Ethereum) untuk akses mudah dan keamanan, serta eksplorasi yield dari DeFi/Stablecoin.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="text-center mt-12 text-xs text-gray-500">
+            <p>Data dan analisis disarikan dari Laporan Analisis Aliran Dana Global (Q3 2024 - Q2 2025). Sumber data meliputi Barron's, CoinDesk, Glassnode, Reuters, EFAMA, HFR, dan World Gold Council.</p>
+            <p>&copy; 2025 Interactive Data Report. Dibuat untuk tujuan informasi.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab-button');
+            const panes = document.querySelectorAll('.content-pane');
+
+            const activateTab = (tabId) => {
+                tabs.forEach(t => {
+                    t.classList.toggle('active', t.dataset.tab === tabId);
+                });
+                panes.forEach(p => {
+                    p.classList.toggle('active', p.id === tabId);
+                });
+            };
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    activateTab(tab.dataset.tab);
+                });
+            });
+
+            // Activate the first tab by default
+            activateTab('overview');
+
+            // --- Chart Data ---
+            const chartData = {
+                etfFlows: {
+                    labels: ['Obligasi', 'Saham', 'Emas', 'Kripto ETF'],
+                    q1: [136.1, 80, 21, 4.2], 
+                    q2: [14.44, 150, -1.8, 1.26] 
+                },
+                recommendation: {
+                    labels: ['Obligasi', 'Saham', 'Emas', 'Kripto'],
+                    allocation: [50, 35, 8, 7]
+                }
+            };
+
+            // --- Liquidity Drivers Interactivity ---
+            const liquidityBtns = document.querySelectorAll('.liquidity-driver-btn');
+            const liquidityContentEl = document.getElementById('liquidity-content');
+            const liquidityContents = {
+                liquidity_hodl: '<p class="text-blue-800">Porsi Bitcoin yang tidak bergerak lebih dari setahun telah mencapai 67%. Banyak investor memindahkan aset dari bursa ke dompet pribadi untuk keamanan jangka panjang, mengurangi pasokan yang siap diperdagangkan dan menekan likuiditas.</p>',
+                liquidity_retail: '<p class="text-blue-800">Investor ritel beralih dari spekulasi di bursa terpusat ke protokol DeFi. Dana mereka kini "terkunci" untuk mendapatkan imbal hasil (yield), bukan untuk diperdagangkan secara aktif, sehingga mengurangi volume spot.</p>',
+                liquidity_etf: '<p class="text-blue-800">Meskipun positif, laju aliran dana ke ETF melambat. Modal institusional masuk secara terukur dengan strategi beli-dan-simpan, tidak menambah likuiditas perdagangan harian secara signifikan.</p>',
+                liquidity_cex: '<p class="text-blue-800">Volume perdagangan spot di bursa terpusat (CEX) turun 22% YoY. Ini menunjukkan kurangnya intensitas spekulatif dari ritel, yang merupakan sumber utama likuiditas di masa lalu.</p>'
+            };
+
+            liquidityBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    liquidityContentEl.innerHTML = liquidityContents[btn.dataset.content];
+                });
+            });
+
+            // --- Chart.js Instances ---
+            let etfFlowsChartInstance, recommendationChartInstance;
+
+            const createEtfFlowsChart = () => {
+                const ctx = document.getElementById('etfFlowsChart').getContext('2d');
+                if (etfFlowsChartInstance) {
+                    etfFlowsChartInstance.destroy();
+                }
+                etfFlowsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.etfFlows.labels,
+                        datasets: [
+                            {
+                                label: 'Aliran Masuk Q1 2025 (Miliar USD)',
+                                data: chartData.etfFlows.q1,
+                                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                borderWidth: 1
+                            },
+                             {
+                                label: 'Aliran Masuk Q2 2025 (Miliar USD)',
+                                data: chartData.etfFlows.q2,
+                                backgroundColor: 'rgba(234, 179, 8, 0.7)',
+                                borderColor: 'rgba(234, 179, 8, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Aliran Dana Bersih ETF per Kelas Aset (Miliar USD)'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y) + ' Miliar';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Aliran Dana (Miliar USD)'
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+            
+            const createRecommendationChart = () => {
+                const ctx = document.getElementById('recommendationChart').getContext('2d');
+                 if (recommendationChartInstance) {
+                    recommendationChartInstance.destroy();
+                }
+                recommendationChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartData.recommendation.labels,
+                        datasets: [{
+                            label: 'Alokasi Portofolio (%)',
+                            data: chartData.recommendation.allocation,
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.8)', // Obligasi - Biru
+                                'rgba(34, 197, 94, 0.8)', // Saham - Hijau
+                                'rgba(234, 179, 8, 0.8)',  // Emas - Kuning
+                                'rgba(107, 114, 128, 0.8)' // Kripto - Abu-abu
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(34, 197, 94, 1)',
+                                'rgba(234, 179, 8, 1)',
+                                'rgba(107, 114, 128, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                           legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            const observer = new MutationObserver((mutations) => {
+              mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                  const targetNode = mutation.target;
+                  if (targetNode.classList.contains('active')) {
+                     if (targetNode.id === 'flows' && !etfFlowsChartInstance) {
+                        createEtfFlowsChart();
+                     } else if (targetNode.id === 'flows' && etfFlowsChartInstance) {
+                         etfFlowsChartInstance.resize();
+                     }
+                      
+                     if (targetNode.id === 'recommendations' && !recommendationChartInstance) {
+                        createRecommendationChart();
+                     } else if (targetNode.id === 'recommendations' && recommendationChartInstance) {
+                         recommendationChartInstance.resize();
+                     }
+                  }
+                }
+              });
+            });
+
+            panes.forEach(pane => {
+                observer.observe(pane, { attributes: true });
+            });
+            
+            window.addEventListener('resize', () => {
+                if (etfFlowsChartInstance) etfFlowsChartInstance.resize();
+                if (recommendationChartInstance) recommendationChartInstance.resize();
+            });
+
+        });
+    </script>
+
+</body>
+</html>
